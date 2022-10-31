@@ -56,7 +56,7 @@ app.get("/trivia", async (req, res) => {
   }
 
   // interpret the body as json
-  const content = await response.json();
+  const data = await response.json();
 
   // fail if db failed
   if (data.response_code !== 0) {
@@ -67,29 +67,28 @@ app.get("/trivia", async (req, res) => {
 
   // respond to the browser
   // TODO: make proper html
-  correctAnswer = content.results[0]['correct_answer']
-      answers = content.results[0]['incorrect_answers']
-      answers.push(correctAnswer)
-      let randomSequence = answers.sort(function() {
-          return Math.random() - 0.5;
-      });
-      const answerLinks = jumbledAnswers.map(answer => {
-          return `<a style='color:white' href="javascript:alert('${
-            answer === correctAnswer ? 'Correct!' : 'Incorrect, Please Try Again!'
-            }')">${answer}</a>`
-      })
-      res.render('trivia', {
-          question: content.results[0]['question'],
-          category: content.results[0]['category'],
-          difficulty: content.results[0]['difficulty'],
-          answers: answerLinks
-      })
+  correctAnswer = data.results[0]['correct_answer']
+  answers = data.results[0]['incorrect_answers']
+  answers.push(correctAnswer)
+  let sequencemix = answers.sort(function() {
+      return Math.random() - 0.5;
   });
+  const answerLinks = sequencemix.map(answer => {
+      return `<a style='color:white' href="javascript:alert('${
+        answer === correctAnswer ? 'Correct!' : 'Incorrect, Please Try Again!'
+        }')">${answer}</a>`
+  })
+  res.render('trivia', {
+      question: data.results[0]['question'],
+      category: data.results[0]['category'],
+      difficulty: data.results[0]['difficulty'],
+      answers: answerLinks
+  })
+})
 
-});
 
 // tell your server code about the public folde
-app.use(express.static('public'));
+
 
 // Start listening for network connections
 app.listen(port);
