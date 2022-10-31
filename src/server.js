@@ -15,6 +15,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const cookieParser = require('cookie-parser');
+
+const fetch = require('node-fetch');
 app.use(cookieParser());
 
 // set the view engine to ejs
@@ -42,8 +44,49 @@ app.get('/', (req, res) => {
   });
   currenttime = new Date();
 });
+app.get("/trivia", async (req, res) => {
+  // fetch the data
+  const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
 
+  // fail if bad response
+  if (!response.ok) {
+    res.status(500);
+    res.send(`Open Trivia Database failed with HTTP code ${response.status}`);
+    return;
+  }
 
+  // interpret the body as json
+  const content = await response.json();
+
+  // fail if db failed
+  if (data.response_code !== 0) {
+    res.status(500);
+    res.send(`Open Trivia Database failed with internal response code ${data.response_code}`);
+    return;
+  }
+
+  // respond to the browser
+  // TODO: make proper html
+  correctAnswer = content.results[0]['correct_answer']
+      answers = content.results[0]['incorrect_answers']
+      answers.push(correctAnswer)
+      let randomSequence = answers.sort(function() {
+          return Math.random() - 0.5;
+      });
+      const answerLinks = jumbledAnswers.map(answer => {
+          return `<a style='color:white' href="javascript:alert('${
+            answer === correctAnswer ? 'Correct!' : 'Incorrect, Please Try Again!'
+            }')">${answer}</a>`
+      })
+      res.render('trivia', {
+          question: content.results[0]['question'],
+          category: content.results[0]['category'],
+          difficulty: content.results[0]['difficulty'],
+          answers: answerLinks
+      })
+  });
+
+});
 
 // tell your server code about the public folde
 app.use(express.static('public'));
