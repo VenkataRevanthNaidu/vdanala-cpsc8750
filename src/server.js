@@ -18,6 +18,7 @@ const cookieParser = require('cookie-parser');
 
 const fetch = require('node-fetch');
 app.use(cookieParser());
+app.use(express.static('public'));
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -84,7 +85,7 @@ app.get("/trivia", async (req, res) => {
       difficulty: data.results[0]['difficulty'],
       answers: answerLinks
   })
-})
+});
 
 
 // tell your server code about the public folde
